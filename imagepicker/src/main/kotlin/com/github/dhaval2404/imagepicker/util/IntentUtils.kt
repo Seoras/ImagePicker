@@ -114,7 +114,7 @@ object IntentUtils {
             uri
         } else {
             val filePath = FileUriUtils.getRealPath(context, uri)!!
-            FileProvider.getUriForFile(context, authority, File(filePath))
+            getSafeUriForFile(context, authority, File(filePath))
         }
 
         intent.setDataAndType(dataUri, "image/*")
@@ -122,4 +122,18 @@ object IntentUtils {
 
         return intent
     }
+
+    private fun getSafeUriForFile(context: Context, file: File): Uri {
+    val authority = context.packageName + context.getString(R.string.image_picker_provider_authority_suffix)
+    return try {
+        FileProvider.getUriForFile(context, authority, file)
+    } catch (e: IllegalArgumentException) {
+        // Copy the file to a known safe directory (e.g. external cache)
+        val safeFile = File(context.externalCacheDir, file.name)
+        // Optionally, delete the safe file first if it exists
+        if (safeFile.exists()) safeFile.delete()
+        file.copyTo(safeFile, overwrite = true)
+        FileProvider.getUriForFile(context, authority, safeFile)
+    }
+}
 }
