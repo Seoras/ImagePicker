@@ -74,9 +74,7 @@ object IntentUtils {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             // authority = com.github.dhaval2404.imagepicker.provider
-            val authority =
-                context.packageName + context.getString(R.string.image_picker_provider_authority_suffix)
-            val photoURI = getSafeUriForFile(context, authority, file)
+            val photoURI = getSafeUriForFile(context, file)
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
         } else {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file))
@@ -106,33 +104,33 @@ object IntentUtils {
     @JvmStatic
     fun getUriViewIntent(context: Context, uri: Uri): Intent {
         val intent = Intent(Intent.ACTION_VIEW)
-        val authority =
-            context.packageName + context.getString(R.string.image_picker_provider_authority_suffix)
 
         val file = DocumentFile.fromSingleUri(context, uri)
         val dataUri = if (file?.canRead() == true) {
             uri
         } else {
             val filePath = FileUriUtils.getRealPath(context, uri)!!
-            getSafeUriForFile(context, authority, File(filePath))
+            getSafeUriForFile(context, File(filePath))
         }
 
         intent.setDataAndType(dataUri, "image/*")
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
         return intent
     }
 
+    /**
+     * Safely generate a content URI, copying the file to external cache if needed.
+     */
     private fun getSafeUriForFile(context: Context, file: File): Uri {
-    val authority = context.packageName + context.getString(R.string.image_picker_provider_authority_suffix)
-    return try {
-        FileProvider.getUriForFile(context, authority, file)
-    } catch (e: IllegalArgumentException) {
-        // Copy the file to a known safe directory (e.g. external cache)
-        val safeFile = File(context.externalCacheDir, file.name)
-        // Optionally, delete the safe file first if it exists
-        if (safeFile.exists()) safeFile.delete()
-        file.copyTo(safeFile, overwrite = true)
-        FileProvider.getUriForFile(context, authority, safeFile)
+        val authority = context.packageName + context.getString(R.string.image_picker_provider_authority_suffix)
+        return try {
+            FileProvider.getUriForFile(context, authority, file)
+        } catch (e: IllegalArgumentException) {
+            // Copy the file to a known safe directory (e.g. external cache)
+            val safeFile = File(context.externalCacheDir, file.name)
+            if (safeFile.exists()) safeFile.delete()
+            file.copyTo(safeFile, overwrite = true)
+            FileProvider.getUriForFile(context, authority, safeFile)
+        }
     }
 }
