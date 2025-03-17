@@ -76,7 +76,7 @@ object IntentUtils {
             // authority = com.github.dhaval2404.imagepicker.provider
             val authority =
                 context.packageName + context.getString(R.string.image_picker_provider_authority_suffix)
-            val photoURI = FileProvider.getUriForFile(context, authority, file)
+            val photoURI = getSafeUriForFile(context, authority, file)
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
         } else {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file))
@@ -135,5 +135,4 @@ object IntentUtils {
         file.copyTo(safeFile, overwrite = true)
         FileProvider.getUriForFile(context, authority, safeFile)
     }
-}
 }
