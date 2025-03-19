@@ -6,11 +6,11 @@ plugins {
 apply from: "../ktlint.gradle"
 
 android {
-    compileSdkVersion 35
+    compileSdkVersion 30
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 35
+        targetSdkVersion 30
         versionCode 16
         versionName "2.1"
 
