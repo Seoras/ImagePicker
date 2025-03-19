@@ -124,10 +124,13 @@ object IntentUtils {
     private fun getSafeUriForFile(context: Context, file: File): Uri {
         val authority = context.packageName + context.getString(R.string.image_picker_provider_authority_suffix)
         return try {
+            // First, try the original file path
             FileProvider.getUriForFile(context, authority, file)
         } catch (e: IllegalArgumentException) {
-            // Copy the file to a known safe directory (e.g. external cache)
-            val safeFile = File(context.externalCacheDir, file.name)
+            // If that fails, copy the file to a safe subfolder in external files dir
+            val safeDir = File(context.getExternalFilesDir(null), "tmp")
+            if (!safeDir.exists()) safeDir.mkdirs()
+            val safeFile = File(safeDir, file.name)
             if (safeFile.exists()) safeFile.delete()
             file.copyTo(safeFile, overwrite = true)
             FileProvider.getUriForFile(context, authority, safeFile)
