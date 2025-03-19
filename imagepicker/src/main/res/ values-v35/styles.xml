@@ -1,0 +1,3 @@
+<style name="Theme.Transparent.ImagePicker" parent="Theme.AppCompat.Light.NoActionBar">
+    <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+</style>
