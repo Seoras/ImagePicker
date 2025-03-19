@@ -122,7 +122,7 @@ object IntentUtils {
      * Safely generate a content URI, copying the file to external cache if needed.
      */
     private fun getSafeUriForFile(context: Context, file: File): Uri {
-        val authority = BuildConfig.APPLICATION_ID + ".provider"
+        val authority = context.packageName + ".provider"
         return try {
             // First, try the original file path
             FileProvider.getUriForFile(context, authority, file)
